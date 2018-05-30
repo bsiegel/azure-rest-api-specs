@@ -13,8 +13,6 @@ env:
     - MODE=java
     - MODE=go
     - MODE=semantic PR_ONLY=true
-    - MODE=semantic PR_ONLY=false
-    - MODE=model PR_ONLY=false
     - MODE=linter PR_ONLY=true
     - MODE=model PR_ONLY=true
     - MODE=BreakingChange PR_ONLY=true
@@ -23,8 +21,6 @@ env:
 matrix:
   fast_finish: true
   allow_failures:
-    - env: MODE=semantic PR_ONLY=false
-    - env: MODE=model PR_ONLY=false
     - env: MODE=linter PR_ONLY=true
     - env: MODE=model PR_ONLY=true
     - env: MODE=BreakingChange PR_ONLY=true
