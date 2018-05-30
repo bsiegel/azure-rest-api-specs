@@ -14,7 +14,7 @@ var utils = require('../test/util/utils'),
 var resolvedMapForNewSpecs = {};
 let outputFolder = path.join(os.tmpdir(), "resolved");
 // Used to enable running script outside TravisCI for debugging
-let isRunningInTraviCI = process.env.MODE === 'BreakingChange' && process.env.PR_ONLY === 'true';
+let isRunningInTraviCI = process.env.TRAVIS === 'true'
 
 /**
  * Compares old and new specifications for breaking change detection.

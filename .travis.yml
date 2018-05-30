@@ -4,86 +4,43 @@ node_js:
 services:
   - docker
 env:
-  matrix:
-    - MODE=branchStrategy
-    - MODE=syntax
-    - MODE=python
-    - MODE=node
-    - MODE=ruby
-    - MODE=java
-    - MODE=go
-    - MODE=semantic PR_ONLY=true
-    - MODE=linter PR_ONLY=true
-    - MODE=model PR_ONLY=true
-    - MODE=BreakingChange PR_ONLY=true
-    - MODE=azurebot PR_ONLY=true
-    - MODE=liveValidation PR_ONLY=true
-matrix:
-  fast_finish: true
+  global: PR_ONLY=true
+stages:
+  - block merges to private repo
+  - test
+  - build
+jobs:
+  include:
+    - stage: block merges to private repo
+      install: skip
+      script: exit 1
+      if: (type = pull_request) AND (branch = master) AND (repo = Azure/azure-rest-api-specs-pr)
+    - stage: test
+      script: npm test -- test/syntax.js
+      env: NAME=SyntaxValidation
+    - script: npm test -- test/semantic.js
+      env: NAME=SemanticValidation
+    - script: npm test -- test/model.js
+      env: NAME=ModelValidation
+    - script: node -- scripts/breaking-change.js
+      env: NAME=BreakingChanges
+    - script: node -- scripts/liveValidation.js
+      env: NAME=LiveValidation
+    - script: scripts/install-dotnet.sh && npm test -- test/linter.js
+      env: NAME=Linter
+    - script: scripts/install-dotnet.sh && node -- scripts/momentOfTruth.js && node -- scripts/momentOfTruthPostProcessing.js
+      env: NAME=NewLintIssues
+    - stage: build
+      script: travis_wait 30 scripts/swagger-to-sdk.sh Azure/azure-sdk-for-python -v
+    - script: travis_wait 30 scripts/swagger-to-sdk.sh Azure/azure-sdk-for-node -v
+    - script: travis_wait 30 scripts/swagger-to-sdk.sh Azure/azure-sdk-for-ruby -v
+    - script: travis_wait 30 scripts/swagger-to-sdk.sh Azure/azure-sdk-for-go -o latest -v
+    - script: travis_wait 30 scripts/swagger-to-sdk.sh Azure/azure-libraries-for-java -v
   allow_failures:
-    - env: MODE=linter PR_ONLY=true
-    - env: MODE=model PR_ONLY=true
-    - env: MODE=BreakingChange PR_ONLY=true
-    - env: MODE=azurebot PR_ONLY=true
-    - env: MODE=liveValidation PR_ONLY=true
-    - env: MODE=java
-    - env: MODE=ruby
-    - env: MODE=go
-    - env: MODE=node
-script:
-  - >-
-    if [[ $MODE == 'python' ]]; then
-      scripts/swagger-to-sdk.sh Azure/azure-sdk-for-python -v
-    fi
-  - >-
-    if [[ $MODE == 'node' ]]; then
-      travis_wait 30 scripts/swagger-to-sdk.sh Azure/azure-sdk-for-node -v
-    fi
-  - >-
-    if [[ $MODE == 'ruby' ]]; then
-      scripts/swagger-to-sdk.sh Azure/azure-sdk-for-ruby -v
-    fi
-  - >-
-    if [[ $MODE == 'go' ]]; then
-      scripts/swagger-to-sdk.sh Azure/azure-sdk-for-go -o latest -v
-    fi
-  - >-
-    if [[ $MODE == 'java' ]]; then
-      scripts/swagger-to-sdk.sh Azure/azure-libraries-for-java -v
-    fi
-  - >-
-    if [[ $MODE == 'branchStrategy' ]]; then
-      # Check to ensure CI is not executing for a PR against the master branch in the private repository
-      ! [[ $TRAVIS_PULL_REQUEST != 'false' && $TRAVIS_REPO_SLUG == 'Azure/azure-rest-api-specs-pr' && $TRAVIS_BRANCH == 'master' ]]
-    fi
-  - >-
-    if [[ $MODE == 'syntax' ]]; then
-      npm test -- test/syntax.js
-    fi
-  - >-
-    if [[ $MODE == 'linter' ]]; then
-      scripts/install-dotnet.sh
-      npm test -- test/linter.js
-    fi
-  - >-
-    if [[ $MODE == 'semantic' ]]; then
-      npm test -- test/semantic.js
-    fi
-  - >-
-    if [[ $MODE == 'model' ]]; then
-      npm test -- test/model.js
-    fi
-  - >-
-    if [[ $MODE == 'BreakingChange' ]]; then
-      node -- scripts/breaking-change.js
-    fi
-  - >-
-    if [[ $MODE == 'azurebot' ]]; then
-      scripts/install-dotnet.sh
-      node -- scripts/momentOfTruth.js
-      node -- scripts/momentOfTruthPostProcessing.js
-    fi
-  - >-
-    if [[ $MODE == 'liveValidation' ]]; then
-      node -- scripts/liveValidation.js;
-    fi
+    - env: NAME=ModelValidation
+    - env: NAME=BreakingChanges
+    - env: NAME=LiveValidation
+    - env: NAME=Linter
+    - env: NAME=NewLintIssues
+    - stage: build
+  fast_finish: true

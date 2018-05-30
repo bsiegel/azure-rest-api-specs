@@ -11,7 +11,6 @@ const repoUrl = utils.getSourceRepoUrl(),
     validationService = "https://app.azure-devex-tools.com/api/validations",
     branch = utils.getSourceBranch(),
     processingDelay = 20,
-    isRunningInTravisCI = process.env.MODE === 'liveValidation' && process.env.PR_ONLY === 'true',
     specsPaths = utils.getFilesChangedInPR(),
     regex = /resource-manager[\\|\/](.*?)[\\|\/].*?[\\|\/](.*?)[\\|\/]/,
     successThreshold = 90,
@@ -23,8 +22,6 @@ if (isNaN(durationInSeconds)) {
 }
 
 async function runScript() {
-    // See whether script is in Travis CI context
-    console.log(`isRunningInTraviSCI: ${isRunningInTravisCI}`);
     for (const specPath of specsPaths) {
         let matchResult = specPath.match(regex);
 
