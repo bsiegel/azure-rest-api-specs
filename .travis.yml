@@ -12,14 +12,14 @@ env:
     - MODE=ruby
     - MODE=java
     - MODE=go
-    - MODE=semantic PR_ONLY=true
+    - MODE=semantic PR_ONLY=true CHECK_NAME="Semantic Validation"
     - MODE=semantic PR_ONLY=false
     - MODE=model PR_ONLY=false
-    - MODE=linter PR_ONLY=true
-    - MODE=model PR_ONLY=true
-    - MODE=BreakingChange PR_ONLY=true
+    - MODE=linter PR_ONLY=true CHECK_NAME="Linter"
+    - MODE=model PR_ONLY=true CHECK_NAME="Model Validation"
+    - MODE=BreakingChange PR_ONLY=true CHECK_NAME="Breaking Changes"
     - MODE=azurebot PR_ONLY=true
-    - MODE=liveValidation PR_ONLY=true
+    - MODE=liveValidation PR_ONLY=true CHECK_NAME="Live Validation"
 matrix:
   fast_finish: true
   allow_failures:
