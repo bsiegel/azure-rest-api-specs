@@ -18,6 +18,7 @@ env:
     - MODE=linter PR_ONLY=true CHECK_NAME="Linter"
     - MODE=model PR_ONLY=true CHECK_NAME="Model Validation"
     - MODE=BreakingChange PR_ONLY=true CHECK_NAME="Breaking Changes"
+    - MODE=MakeSomeNoise CHECK_NAME="Noise Maker"
     - MODE=azurebot PR_ONLY=true
     - MODE=liveValidation PR_ONLY=true CHECK_NAME="Live Validation"
 matrix:
@@ -101,4 +102,8 @@ script:
   - >-
     if [[ $MODE == 'liveValidation' ]]; then
       node -- scripts/liveValidation.js;
+    fi
+  - >-
+    if [[ $MODE == 'MakeSomeNoise' ]]; then
+      scripts/noise.sh
     fi
