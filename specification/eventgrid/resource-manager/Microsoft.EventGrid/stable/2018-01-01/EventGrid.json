@@ -5,7 +5,7 @@
         "title": "EventGridManagementClient",
         "description": "Azure EventGrid Management Client"
     },
-    "host": "management.azure.com",
+    "host": "test.azure.com",
     "schemes": [
         "https"
     ],
